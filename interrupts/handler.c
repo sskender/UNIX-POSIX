@@ -12,7 +12,7 @@
  * NOTE:
  *  This is random work simulation,
  *  doesn't do anything actually.
- * */
+ */
 #define WORKERS 5           /* number of work to do */
 #define WAIT_TIME 1         /* worker's job time (in seconds) */
 
@@ -33,7 +33,7 @@ int MAIN_COUNTER = 1;       /* see in main function */
 void print_main(int n)
 {
 	printf("%3d", n);
-	for(int i = 0; i < SIG_COUNT; i++) {
+	for (int i = 0; i < SIG_COUNT; i++) {
 		if (i == 0) {
 			printf("\t");
 		}
@@ -45,7 +45,7 @@ void print_main(int n)
 
 void print_status(int sig_index, char c)
 {
-	for(int i = 1; i < SIG_COUNT+1; i++) {
+	for (int i = 1; i < SIG_COUNT+1; i++) {
 		if (i == 1) {
 			printf("\t");
 		}
@@ -92,12 +92,12 @@ void print_job_end(int sig_index)
  * NOTE:
  *  This is random work simulation,
  *  doesn't do anything actually.
- * */
+ */
 void do_work(int sig_index)
 {
 	print_job_start(sig_index);
 
-	for(int i = 0; i < WORKERS; i++) {
+	for (int i = 0; i < WORKERS; i++) {
 		print_job_progress(sig_index, '1'+i);
 		sleep(WAIT_TIME);
 	}
@@ -112,7 +112,7 @@ void do_work(int sig_index)
 
 void allow_interrupts(void)
 {
-	for(int i = 0; i < SIG_COUNT; i++) {
+	for (int i = 0; i < SIG_COUNT; i++) {
 		sigrelse(SIGNALS[i]);
 	}
 }
@@ -120,7 +120,7 @@ void allow_interrupts(void)
 
 void deny_interrupts(void)
 {
-	for(int i = 0; i < SIG_COUNT; i++) {
+	for (int i = 0; i < SIG_COUNT; i++) {
 		sighold(SIGNALS[i]);
 	}
 }
@@ -135,27 +135,29 @@ void handle_interrupts(int sig)
 	deny_interrupts();
 
 	/* identify new signal interrupt index */
-	switch(sig) {
-		case SIGUSR1:
-			sig_index = 1;
-			print_signal_interrupt(sig_index);
-			break;
-		case SIGUSR2:
-			sig_index = 2;
-			print_signal_interrupt(sig_index);
-			break;
-		case SIGPROF:
-			sig_index = 3;
-			print_signal_interrupt(sig_index);
-			break;
-		case SIGCHLD:
-			sig_index = 4;
-			print_signal_interrupt(sig_index);
-			break;
-		case SIGINT:
-			sig_index = 5;
-			print_signal_interrupt(sig_index);
-			break;
+	switch (sig) {
+	case SIGUSR1:
+		sig_index = 1;
+		print_signal_interrupt(sig_index);
+		break;
+	case SIGUSR2:
+		sig_index = 2;
+		print_signal_interrupt(sig_index);
+		break;
+	case SIGPROF:
+		sig_index = 3;
+		print_signal_interrupt(sig_index);
+		break;
+	case SIGCHLD:
+		sig_index = 4;
+		print_signal_interrupt(sig_index);
+		break;
+	case SIGINT:
+		sig_index = 5;
+		print_signal_interrupt(sig_index);
+		break;
+	default:
+		break;
 	}
 
 	/* save new signal interrupt index to wait list */
@@ -166,7 +168,7 @@ void handle_interrupts(int sig)
 	do {
 		new_prior = 0;  /* reset to main function priority */
 
-		for(int i = LEVEL-1; i > CURR_PRIOR; i--) {
+		for (int i = LEVEL-1; i > CURR_PRIOR; i--) {
 			if (WAIT[i]) {
 				new_prior = i;
 				break;
@@ -197,7 +199,7 @@ void handle_interrupts(int sig)
 int main(void)
 {
 	/* assign signal handler function to each signal */
-	for(int i = 0; i < SIG_COUNT; i++) {
+	for (int i = 0; i < SIG_COUNT; i++) {
 		signal(SIGNALS[i], handle_interrupts);
 	}
 

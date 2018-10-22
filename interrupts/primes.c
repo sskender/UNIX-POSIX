@@ -26,7 +26,7 @@ int is_prime(unsigned long n)
 	}
 
 	max = sqrt(n);
-	for(i = 3; i <= max; i += 2) {
+	for (i = 3; i <= max; i += 2) {
 		if (n % i == 0) {
 			return 0;
 		}

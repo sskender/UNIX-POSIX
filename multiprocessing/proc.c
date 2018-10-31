@@ -63,7 +63,7 @@ void handle_interrupt(int sig)
 void do_work(int n)
 {
 	/* do some long work with variable in shared memory */
-	for(int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) {
 		(*SHARED_VAR)++;
 		if ((i & 1) == 0) {
 			sleep(rand() % 2);
@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
 
 	if (argc != 3) {
 		perror("Wrong number of arguments\n");
-		exit(1);
+		printf("Usage: %s <N> <M>\n", argv[0]);
+		exit(-1);
 	}
 
 	forks = atoi(argv[1]);
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
 	*SHARED_VAR = 0;
 
 	/* fork */
-	for(int i = 0; i < forks; i++) {
+	for (int i = 0; i < forks; i++) {
 		child_pid = fork();
 
 		if (child_pid < 0) {
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for(int i = 0; i < forks; i++) {
+	for (int i = 0; i < forks; i++) {
 		wait(&child_exst);
 		/* use WEXITSTATUS to extract child process exit status */
 	}

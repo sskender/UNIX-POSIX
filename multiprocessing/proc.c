@@ -54,6 +54,7 @@ void clear_mem(void)
 
 void handle_interrupt(int sig)
 {
+	/* on sigterm clear shared memory before exit */
 	printf("%d signal received\n", sig);
 	clear_mem();
 	exit(0);
@@ -64,7 +65,11 @@ void do_work(int n)
 {
 	/* do some long work with variable in shared memory */
 	for (int i = 0; i < n; i++) {
+
+		/* starts of critical section */
 		(*SHARED_VAR)++;
+		/* end of critical section */
+
 		if ((i & 1) == 0) {
 			sleep(rand() % 2);
 		}
@@ -91,14 +96,16 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
+	/* load N and M values from arguments */
 	forks = atoi(argv[1]);
 	fork_jobs = atoi(argv[2]);
 
+	/* set signal handler and shared memory */
 	srand(getpid());
 	init_mem();
 	signal(SIGINT, handle_interrupt);
 
-	/* starting value */
+	/* set value to be calculated  */
 	*SHARED_VAR = 0;
 
 	/* fork */

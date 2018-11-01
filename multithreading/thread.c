@@ -6,20 +6,31 @@
  *
  * It is only an example 
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 
 
+/* this must be calculated */
 long long TOTAL = 0;
 
 
-void *do_work(void *jobs)
+void *do_work(void *arg)
 {
-	/* do some long work with shared variable */
-	for (int i = 0; i < *((int *)jobs); i++) {
+	/*
+	 * do some long work with shared variable
+	 *
+	 * extract data from arg pointer
+	 */
+	int jobs = *((int *)arg);
+
+	for (int i = 0; i < jobs; i++) {
+		/* start of critical section */
 		TOTAL++;
+		/* end of critical section */
 	}
+
 	pthread_exit(0);
 }
 
@@ -29,7 +40,7 @@ void create_threads(pthread_t *thread_ids, int *threads, int *thread_jobs)
 	for (int i = 0; i < *threads; i++) {
 		if (pthread_create(thread_ids+i, NULL, do_work, thread_jobs) != 0) {
 			perror("Error creating new thread\n");
-			exit(1);
+			exit(-1);
 		}
 	}
 }
@@ -61,13 +72,18 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
+	/* load N and M values from arguments */
 	threads = atoi(argv[1]);
 	thread_jobs = atoi(argv[2]);
+
+	/* allocate memory for thread_ids array */
 	thread_ids = (pthread_t *)malloc(sizeof(pthread_t)*threads);
 
+	/* spawn threads */
 	create_threads(thread_ids, &threads, &thread_jobs);
 	join_threads(thread_ids, &threads);
 
+	/* result */
 	printf("Total=%lld\n", TOTAL);
 	free(thread_ids);
 

@@ -8,23 +8,20 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-
 typedef long long ll;
 
 
 /* this must be calculated */
 ll TOTAL = 0;
 
-
 /* thread related data */
 int THREADS;
 pthread_t *THREAD_IDS;
 
 struct do_work_arg {
-	int thread_index;
-	ll *thread_jobs;
+	int thread_index;	/* this is not id, this is index to keep track num. of total THREADS */
+	ll *thread_jobs;	/* thread_jobs in main, no need to copy value, pointer will do */
 }; 
-
 
 /* Lamport data */
 int *ENTERING;
@@ -46,7 +43,7 @@ int find_max(int *arr, int size)
 
 void lamport_lock(int i)
 {
-	/* i = thread index */
+	/* i = thread index from THREADS */
 
 	ENTERING[i] = 1;
 	NUMBER[i] = 1 + find_max(NUMBER, THREADS);
@@ -69,7 +66,7 @@ void lamport_lock(int i)
 
 void lamport_unlock(int i)
 {
-	/* i = thread index */
+	/* i = thread index from THREADS */
 
 	NUMBER[i] = 0;
 }
@@ -77,9 +74,11 @@ void lamport_unlock(int i)
 
 void *do_work(void *arg)
 {
-	/* do some long work with shared variable */
-
-	/* extract data from struct arg */
+	/*
+	 * do some long work with shared variable
+	 *
+	 * extract data from arg pointer
+	 */
 	struct do_work_arg *arg_struct = (struct do_work_arg *)arg;
 
 	int thr_indx = arg_struct->thread_index;
@@ -93,7 +92,7 @@ void *do_work(void *arg)
 	 */
 	for (ll i = 0; i < jobs; i++) {
 		lamport_lock(thr_indx);
-		/* starts of critical section */
+		/* start of critical section */
 		TOTAL++;
 		/* end of critical section */
 		lamport_unlock(thr_indx);
@@ -136,11 +135,11 @@ int main(int argc, char *argv[])
 	 *
 	 * THREAD_IDS 	-> save thread id
 	 * do_work	-> function to execute by thread
-	 * arg_array	-> arguments for thread function (also save thread index)
+	 * arg_array	-> arguments for thread function (also save thread index (i))
 	 */
 	for (int i = 0; i < THREADS; i++) {
 		arg_array[i].thread_index = i;
-		arg_array[i].thread_jobs = &thread_jobs;	/* no need to copy the same value every time, pointer will do the job */
+		arg_array[i].thread_jobs = &thread_jobs;  /* this is stored in main */
 
 		if (pthread_create(THREAD_IDS+i, NULL, do_work, &arg_array[i]) != 0) {
 			perror("Error creating new thread\n");

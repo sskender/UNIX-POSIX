@@ -66,7 +66,7 @@ void do_work(int n)
 	/* do some long work with variable in shared memory */
 	for (int i = 0; i < n; i++) {
 
-		/* starts of critical section */
+		/* start of critical section */
 		(*SHARED_VAR)++;
 		/* end of critical section */
 
